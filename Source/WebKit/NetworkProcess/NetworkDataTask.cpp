@@ -179,6 +179,12 @@ void NetworkDataTask::didReceiveResponse(ResourceResponse&& response, Negotiated
         }
     }
 
+    if (response.httpHeaderFields().contains("Use-As-Dictionary")) {
+        m_dictionaryBuffer = WebCore::SharedBuffer::create();
+        m_session->useAsDictionary(response);
+    }
+
+
     response.setSource(ResourceResponse::Source::Network);
     if (negotiatedLegacyTLS == NegotiatedLegacyTLS::Yes)
         response.setUsedLegacyTLS(UsedLegacyTLS::Yes);

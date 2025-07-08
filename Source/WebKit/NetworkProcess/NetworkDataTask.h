@@ -194,6 +194,8 @@ protected:
     bool m_shouldClearReferrerOnHTTPSToHTTPRedirect { true };
     bool m_dataTaskIsForMainFrameNavigation { false };
     bool m_failureScheduled { false };
+    RefPtr<WebCore::SharedBuffer> m_dictionaryBuffer;
+
 };
 
 } // namespace WebKit
