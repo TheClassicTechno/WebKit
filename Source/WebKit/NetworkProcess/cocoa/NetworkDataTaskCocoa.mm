@@ -403,6 +403,8 @@ void NetworkDataTaskCocoa::didNegotiateModernTLS(const URL& url)
 void NetworkDataTaskCocoa::didCompleteWithError(const WebCore::ResourceError& error, const WebCore::NetworkLoadMetrics& networkLoadMetrics)
 {
     WTFEmitSignpost(m_task.get(), DataTask, "completed with error: %d", !error.isNull());
+    if (m_dictionaryBuffer && error.isNull())
+         networkSession()->useAsDictionary(std::exchange(m_dictionaryBuffer, nullptr));
 
     if (RefPtr client = m_client.get())
         client->didCompleteWithError(error, networkLoadMetrics);
@@ -413,6 +415,9 @@ void NetworkDataTaskCocoa::didReceiveData(const WebCore::SharedBuffer& data)
     WTFEmitSignpost(m_task.get(), DataTask, "received %zd bytes", data.size());
 
     setBytesTransferredOverNetwork([m_task _countOfBytesReceivedEncoded]);
+
+    if (m_dictionaryBuffer)
+           m_dictionaryBuffer->append(data);
 
     if (RefPtr client = m_client.get())
         client->didReceiveData(data);

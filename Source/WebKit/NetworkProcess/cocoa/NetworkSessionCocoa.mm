@@ -1156,6 +1156,17 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         networkDataTask->didReceiveData(WebCore::SharedBuffer::create(data));
 }
 
+// Call this from CFNetwork/libnetcore
+- (void)_URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask provideDictionaryForResponse:(NSURLResponse *)response request:(NSURLRequest *)request completionHandler:(void (^)(NSData *))completionHandler
+{
+    if (auto networkDataTask = [self existingTask:dataTask]) {
+        networkDataTask->provideDictionaryForResponse(response, request, [completionHandler = makeBlockPtr(completionHandler)] (RefPtr<WebCore::SharedBuffer>&& data) {
+            completionHandler(data.createNSData().get());
+        });
+    } else
+        completionHandler(nil);
+}
+
 - (void)URLSession:(NSURLSession *)nsSession downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
     if (!_sessionWrapper)
