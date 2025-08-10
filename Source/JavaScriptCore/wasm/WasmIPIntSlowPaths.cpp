@@ -1069,7 +1069,7 @@ WASM_IPINT_EXTERN_CPP_DECL(ref_func, unsigned index)
 
 extern "C" void SYSV_ABI wasm_log_crash(CallFrame*, JSWebAssemblyInstance* instance)
 {
-    dataLogLn("Reached IPInt code that should never have been executed.");
+    dataLogLn("Reached LLInt code that should never have been executed.");
     dataLogLn("Module internal function count: ", instance->module().moduleInformation().internalFunctionCount());
     RELEASE_ASSERT_NOT_REACHED();
 }

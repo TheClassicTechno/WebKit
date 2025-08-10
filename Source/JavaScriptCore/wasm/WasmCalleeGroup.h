@@ -179,7 +179,8 @@ public:
         return &m_wasmIndirectCallEntryPoints[calleeIndex];
     }
 
-    RefPtr<Wasm::IPIntCallee> wasmCalleeFromFunctionIndexSpace(FunctionSpaceIndex functionIndexSpace)
+    // This is the callee used by IPInt, not by the JS->Wasm entrypoint
+    RefPtr<Wasm::Callee> wasmCalleeFromFunctionIndexSpace(FunctionSpaceIndex functionIndexSpace)
     {
         RELEASE_ASSERT(functionIndexSpace >= functionImportCount());
         unsigned calleeIndex = functionIndexSpace - functionImportCount();
@@ -241,7 +242,7 @@ private:
     using DenseCallers = BitVector;
     FixedVector<Variant<SparseCallers, DenseCallers>> m_callers WTF_GUARDED_BY_LOCK(m_lock);
     FixedVector<CodePtr<WasmEntryPtrTag>> m_wasmIndirectCallEntryPoints;
-    FixedVector<RefPtr<Wasm::IPIntCallee>> m_wasmIndirectCallWasmCallees;
+    FixedVector<RefPtr<Wasm::Callee>> m_wasmIndirectCallWasmCallees;
     FixedVector<MacroAssemblerCodeRef<WasmEntryPtrTag>> m_wasmToWasmExitStubs;
     RefPtr<EntryPlan> m_plan;
     std::atomic<bool> m_compilationFinished { false };

@@ -987,3 +987,15 @@ op(wasm_throw_from_fault_handler_trampoline_reg_instance, macro ()
     move wasmInstance, a2
     wasm_throw_from_fault_handler(a2)
 end)
+
+# Disable wide version of narrow-only opcodes
+noWide(wasm_wide16)
+noWide(wasm_wide32)
+
+# Opcodes that should eventually be shared with JS llint
+
+_wasm_wide16:
+    crash()
+
+_wasm_wide32:
+    crash()

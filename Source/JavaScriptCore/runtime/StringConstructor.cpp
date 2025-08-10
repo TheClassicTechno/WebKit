@@ -175,7 +175,7 @@ JSString* stringConstructor(JSGlobalObject* globalObject, JSValue argument)
         }
         return jsNontrivialString(vm, description.value());
     }
-    RELEASE_AND_RETURN(scope, argument.toString(globalObject));
+    return argument.toString(globalObject);
 }
 
 JSC_DEFINE_HOST_FUNCTION(callStringConstructor, (JSGlobalObject* globalObject, CallFrame* callFrame))
