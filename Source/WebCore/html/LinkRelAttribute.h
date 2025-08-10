@@ -56,7 +56,7 @@ struct LinkRelAttribute {
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
     bool isSpatialBackdrop : 1 { false };
 #endif
-
+    bool isCompressionDictionary : 1 { false };
     LinkRelAttribute() = default;
     LinkRelAttribute(Document&, StringView);
 

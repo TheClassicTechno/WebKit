@@ -64,6 +64,11 @@ static constexpr std::pair<ComparableLettersLiteral, LinkTypeDetails> linkTypesA
     { "modulepreload"_s, { [](auto) { return true; }, [](auto relAttribute) { relAttribute.isLinkModulePreload = true; } } },
     { "preconnect"_s, { [](auto document) { return document.settings().linkPreconnectEnabled(); }, [](auto relAttribute) { relAttribute.isLinkPreconnect = true; } } },
     { "prefetch"_s, { [](auto document) { return document.settings().linkPrefetchEnabled(); }, [](auto relAttribute) { relAttribute.isLinkPrefetch = true; } } },
+
+    { "compression-dictionary"_s, { [](auto) { return true; }, [](auto& relAttribute) { relAttribute.isCompressionDictionary = true; } } },
+
+
+
     { "preload"_s, { [](auto document) { return document.settings().linkPreloadEnabled(); }, [](auto relAttribute) { relAttribute.isLinkPreload = true; } } },
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
     { "spatial-backdrop"_s, {
@@ -72,6 +77,9 @@ static constexpr std::pair<ComparableLettersLiteral, LinkTypeDetails> linkTypesA
     } },
 #endif
     { "stylesheet"_s, { [](auto) { return true; }, [](auto relAttribute) { relAttribute.isStyleSheet = true; } } },
+
+    { "compression-dictionary"_s, { [](auto) { return true; }, [](auto& relAttribute) { relAttribute.isCompressionDictionary = true; } } },
+
 };
 
 static constexpr SortedArrayMap linkTypes { linkTypesArray };
