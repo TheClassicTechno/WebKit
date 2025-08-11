@@ -121,6 +121,22 @@ void LinkLoader::loadLinksFromHeader(const String& headerValue, const URL& baseU
 
         LinkRelAttribute relAttribute(document, header.rel());
         URL url(baseURL, header.url());
+
+
+        if (relAttribute.isCompressionDictionary && url.isValid()) {
+            ResourceRequest request { url };
+            request.setInitiatorIdentifier(document.loader()->nextRequestIdentifier());
+
+            ThreadableLoaderOptions options;
+            options.initiatorType = "compression-dictionary"_s;
+            options.mode = FetchOptions::Mode::Cors;
+            options.credentials = FetchOptions::Credentials::Include;
+            options.contentSecurityPolicyEnforcement = ContentSecurityPolicyEnforcement::DoNotEnforce;
+
+            DocumentThreadableLoader::create(document, nullptr, WTFMove(request), options);
+            continue;
+        }
+
         // Sanity check to avoid re-entrancy here.
         if (equalIgnoringFragmentIdentifier(url, baseURL))
             continue;

@@ -28,6 +28,7 @@
 #pragma once
 
 #include "AsyncNodeDeletionQueue.h"
+#include "CachedResourceClient.h"
 #include "Color.h"
 #include "ContainerNode.h"
 #include "ContextDestructionObserver.h"
@@ -428,6 +429,7 @@ class Document
     , public FrameDestructionObserver
     , public Supplementable<Document>
     , public Logger::Observer
+    , public CachedResourceClient {
     , public ReportingClient {
     WTF_MAKE_TZONE_OR_ISO_ALLOCATED_EXPORT(Document, WEBCORE_EXPORT);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(Document);
@@ -438,6 +440,9 @@ public:
     static Ref<Document> createNonRenderedPlaceholder(LocalFrame&, const URL&);
     static Ref<Document> create(Document&);
     static Ref<Document> createCloned(ClonedDocumentType, const Settings&, const URL&, const URL& baseURL, const URL& baseURLOverride, const Variant<String, URL>& documentURI, DocumentCompatibilityMode, Document& contextDocument, SecurityOriginPolicy*, const String& contentType, TextResourceDecoder*);
+    void didReceiveResponse(const ResourceResponse&) override;
+    void didFinishLoading(ResourceLoader*) override;
+    void didFailLoading(ResourceLoader*, const ResourceError&) override;
 
     virtual ~Document();
 
@@ -615,6 +620,8 @@ public:
     WEBCORE_EXPORT Ref<HTMLCollection> scripts();
     Ref<HTMLCollection> all();
     Ref<HTMLCollection> allFilteredByName(const AtomString&);
+    void loadCompressionDictionaryResource(ResourceRequest&&);
+
 
     Ref<HTMLCollection> windowNamedItems(const AtomString&);
     Ref<HTMLCollection> documentNamedItems(const AtomString&);
@@ -2027,6 +2034,8 @@ private:
     friend class Page;
     friend class ThrowOnDynamicMarkupInsertionCountIncrementer;
     friend class UnloadCountIncrementer;
+
+    RefPtr<CachedResource> m_compressionDictionaryResource;
 
     void updateTitleElement(Element& changingTitleElement);
     RefPtr<Element> protectedTitleElement() const;

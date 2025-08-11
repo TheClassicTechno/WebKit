@@ -313,9 +313,26 @@ void HTMLLinkElement::process()
         document().spatialBackdropLinkElementChanged();
 #endif
 
+
+
     processInternalResourceLink();
+
+    if (m_relAttribute.isCompressionDictionary) {
+        if (auto* document = this->document()) {
+            URL url = document->completeURL(attributeWithoutSynchronization(hrefAttr));
+            if (!url.isEmpty()) {
+                ResourceRequest request { url };
+                document->loadCompressionDictionaryResource(WTFMove(request));
+            }
+        }
+        return;
+    }
+
+
+
     if (m_relAttribute.isInternalResourceLink)
         return;
+
 
     Ref document = this->document();
     LinkLoadParameters params {

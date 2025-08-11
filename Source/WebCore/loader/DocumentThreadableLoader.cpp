@@ -585,6 +585,17 @@ void DocumentThreadableLoader::loadRequest(ResourceRequest&& request, SecurityCh
             options.dataBufferingPolicy = DataBufferingPolicy::BufferData;
 
         request.setAllowCookies(m_options.storedCredentialsPolicy == StoredCredentialsPolicy::Use);
+
+        bool isCompressionDictionaryRequest = m_options.initiatorType == "compression-dictionary"_s;
+            if (isCompressionDictionaryRequest) {
+                request.setFetchRequestMode(ResourceRequest::FetchRequestMode::Cors);
+                request.setFetchCredentialsMode(ResourceRequest::FetchCredentialsMode::Include);
+                request.setHTTPHeaderField(HTTPHeaderName::Origin, document().securityOrigin().toString());
+                request.setHTTPHeaderField("Sec-Fetch-Site", "same-origin");
+                request.setHTTPHeaderField("Sec-Fetch-Mode", "cors");
+            }
+
+
         CachedResourceRequest newRequest(WTFMove(request), options);
         newRequest.setInitiatorType(AtomString { m_options.initiatorType });
         newRequest.setOrigin(protectedSecurityOrigin());

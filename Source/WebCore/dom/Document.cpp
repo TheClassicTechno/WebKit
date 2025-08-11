@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "Document.h"
+#include "DocumentThreadableLoader.h"
 
 #include "AXObjectCache.h"
 #include "AnimationTimelinesController.h"
@@ -8997,6 +8998,65 @@ void Document::decrementLoadEventDelayCount()
     if (frame() && !m_loadEventDelayCount && !m_loadEventDelayTimer.isActive())
         m_loadEventDelayTimer.startOneShot(0_s);
 }
+
+void Document::loadCompressionDictionaryResource(ResourceRequest&& request)
+{
+    ThreadableLoaderOptions options;
+    options.initiatorType = "compression-dictionary"_s;
+    options.mode = FetchOptions::Mode::Cors;
+    options.credentials = FetchOptions::Credentials::Include;
+    options.contentSecurityPolicyEnforcement = ContentSecurityPolicyEnforcement::DoNotEnforce;
+
+    auto resource = DocumentThreadableLoader::create(*this, nullptr, WTFMove(request), options);
+    if (!resource)
+        return;
+
+    if (m_compressionDictionaryResource)
+        m_compressionDictionaryResource->removeClient(*this);
+
+    m_compressionDictionaryResource = WTFMove(resource);
+    m_compressionDictionaryResource->addClient(*this);
+}
+
+
+
+void Document::clearCompressionDictionaryResource()
+{
+    if (m_compressionDictionaryResource) {
+        m_compressionDictionaryResource->removeClient(*this);
+        m_compressionDictionaryResource = nullptr;
+    }
+}
+
+
+
+void Document::didReceiveResponse(const ResourceResponse& response)
+{
+    auto contentType = response.httpHeaderField("Content-Type");
+    if (contentType != "application/x-webkit-compression-dictionary") {
+        WTFLogAlways("Unexpected Content-Type for compression dictionary: %s, cancelling load.", contentType.utf8().data());
+
+        if (m_compressionDictionaryResource) {
+            m_compressionDictionaryResource->removeClient(*this);
+            m_compressionDictionaryResource->cancel();
+            m_compressionDictionaryResource = nullptr;
+        }
+    } else {
+        WTFLogAlways("Compression dictionary content type verified.");
+    }
+}
+
+void Document::didFinishLoading(ResourceLoader*)
+{
+    // Compression dictionary resource finished loading successfully
+    WTFLogAlways("Compression dictionary resource loaded successfully.");
+}
+
+void Document::didFailLoading(ResourceLoader*, const ResourceError& error)
+{
+    WTFLogAlways("Failed to load compression dictionary resource: %s", error.localizedDescription().utf8().data());
+}
+
 
 void Document::loadEventDelayTimerFired()
 {
